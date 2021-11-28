@@ -3,6 +3,8 @@ package com.burchard36.config;
 import com.burchard36.Logger;
 import com.burchard36.inventory.ItemWrapper;
 import com.google.gson.annotations.SerializedName;
+import net.Indyuce.mmoitems.MMOItems;
+import net.Indyuce.mmoitems.api.Type;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -22,8 +24,11 @@ public class JsonItemStack {
     @SerializedName(value = "custom_items_id")
     public String customItemsId;
 
-    @SerializedName(value = "mmo_items_id")
-    public String mmoItemsId;
+    @SerializedName(value = "mmo_item_id")
+    public String mmoItemId;
+
+    @SerializedName(value = "mmo_item_type")
+    public String mmoItemType;
 
     @SerializedName(value = "lore")
     public List<String> lore;
@@ -46,7 +51,8 @@ public class JsonItemStack {
         this.commandsToExecute = null;
         this.giveItem = true;
         this.customItemsId = null;
-        this.mmoItemsId = null;
+        this.mmoItemId = null;
+        this.mmoItemType = null;
     }
 
     public final ItemStack getItemStack() {
@@ -62,5 +68,17 @@ public class JsonItemStack {
         if (this.enchantments != null) wrapper.addEnchantments((HashMap<Enchantment, Integer>)this.enchantments);
         //if (this.commandsToExecute != null) wrapper.addDataString("villager_command", this.commandsToExecute);
         return wrapper.getItemStack();
+    }
+
+    public final boolean isMmoItem() {
+        return this.mmoItemId != null && this.mmoItemType != null;
+    }
+
+    public final ItemStack getMmoItem() {
+        return MMOItems.plugin.getItem(Type.get(this.mmoItemType), this.mmoItemId);
+    }
+
+    public final boolean isCustomItem() {
+        return this.customItemsId != null;
     }
 }

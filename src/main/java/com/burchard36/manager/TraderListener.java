@@ -2,6 +2,7 @@ package com.burchard36.manager;
 
 import com.burchard36.Logger;
 import com.burchard36.TraderVillagers;
+import com.burchard36.config.JsonItemStack;
 import com.burchard36.config.JsonTradeOption;
 import com.burchard36.config.PluginConfig;
 import com.burchard36.config.VillagerTraderJson;
@@ -34,6 +35,7 @@ public class TraderListener implements Listener {
     @EventHandler
     public void onTradeClick(final InventoryClickEvent event) {
         Logger.debug("Holder: " + event.getInventory().getHolder(), TraderVillagers.INSTANCE);
+        final int slotClicked = event.getSlot();
         if (!(event.getInventory() instanceof MerchantInventory)) {
             Logger.debug("Returning onTradeClick because Inventory is not MerchantInventory", TraderVillagers.INSTANCE);
             return;
@@ -58,7 +60,15 @@ public class TraderListener implements Listener {
 
         final JsonTradeOption traderOptions = traderJsonConfig.tradeOptions.get(villagerInventory.getSelectedRecipeIndex());
 
+        final JsonItemStack firstIngredientConfig = traderOptions.cost1;
+        final JsonItemStack secondIngredientConfig = traderOptions.cost2;
+        final JsonItemStack resultConfig = traderOptions.result;
 
+        if (slotClicked == 2 && villagerInventory.getItem(slotClicked) != null) {
+            if (resultConfig.isMmoItem()) {
+                villagerInventory.setItem(slotClicked, resultConfig.getMmoItem());
+            }
+        }
     }
 
     private HashMap<Integer, ItemStack> getVillagerTradeIngredients(final MerchantRecipe recipe) {
