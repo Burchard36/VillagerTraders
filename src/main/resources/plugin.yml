@@ -1,0 +1,6 @@
+name: TraderVillagers
+version: '${project.version}'
+main: com.burchard36.TraderVillagers
+api-version: 1.17
+description: Add ability to trade with villagers in minecraft
+depend: ['Citizens']
