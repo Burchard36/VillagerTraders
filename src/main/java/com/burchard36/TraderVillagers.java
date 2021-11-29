@@ -5,25 +5,23 @@ import com.burchard36.config.PluginConfig;
 import com.burchard36.json.PluginDataMap;
 import com.burchard36.json.PluginJsonWriter;
 import com.burchard36.manager.TraderManager;
-import net.citizensnpcs.api.event.CitizensEnableEvent;
-import net.citizensnpcs.api.event.NPCRightClickEvent;
+import com.jojodmo.customitems.api.CustomItemsAPI;
+import net.Indyuce.mmoitems.MMOItems;
 import net.citizensnpcs.api.event.NPCSpawnEvent;
 import net.citizensnpcs.api.npc.NPC;
-import org.bukkit.entity.EntityType;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public final class TraderVillagers extends JavaPlugin implements Listener, Api {
 
     public static TraderVillagers INSTANCE;
     private ApiLib lib;
     private TraderManager traderManager;
+    private boolean mmoItemsEnabled;
+    private MMOItems mmoItemsInstance;
+    private boolean customItemsEnabled;
 
     @EventHandler
     public void onNpcSpawn(NPCSpawnEvent event) {
@@ -34,7 +32,25 @@ public final class TraderVillagers extends JavaPlugin implements Listener, Api {
 
     @Override
     public void onEnable() {
-        this.getServer().getPluginManager().registerEvents(this, this);
+        /* Enable or Disable MMOItems hook */
+        Bukkit.getPluginManager().registerEvents(this, this);
+        if (!Bukkit.getPluginManager().isPluginEnabled("MMOItems")) {
+            this.mmoItemsEnabled = false;
+            this.mmoItemsInstance = null;
+            Logger.log("MMOItems not enabled, disabling MMOItems hook");
+        } else {
+            this.mmoItemsEnabled = true;
+            this.mmoItemsInstance = (MMOItems) Bukkit.getPluginManager().getPlugin("MMOItems");
+            Logger.log("MMOItems was detected running on this server! Hook was enabled!");
+        }
+
+        if (!Bukkit.getPluginManager().isPluginEnabled("Customitems")) {
+            this.customItemsEnabled = false;
+        } else {
+            this.customItemsEnabled = true;
+            Logger.log("CustomItems was detected running on this server! Hook was enabled!");
+        }
+
         PluginConfig defaultConfig = new PluginConfig(this, "config.json");
         this.lib = new ApiLib().initializeApi(this);
         final PluginJsonWriter writer = this.lib.getPluginDataManager().getJsonWriter();
@@ -57,5 +73,17 @@ public final class TraderVillagers extends JavaPlugin implements Listener, Api {
     @Override
     public boolean isDebug() {
         return true;
+    }
+
+    public boolean isMmoItemsEnabled() {
+        return this.mmoItemsEnabled;
+    }
+
+    public MMOItems getMmoItemsInstance() {
+        return this.mmoItemsInstance;
+    }
+
+    public boolean isCustomItemsEnabled() {
+        return this.customItemsEnabled;
     }
 }

@@ -1,9 +1,10 @@
 package com.burchard36.config;
 
 import com.burchard36.Logger;
+import com.burchard36.TraderVillagers;
 import com.burchard36.inventory.ItemWrapper;
 import com.google.gson.annotations.SerializedName;
-import net.Indyuce.mmoitems.MMOItems;
+import com.jojodmo.customitems.api.CustomItemsAPI;
 import net.Indyuce.mmoitems.api.Type;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -36,11 +37,6 @@ public class JsonItemStack {
     @SerializedName(value = "enchantments")
     public Map<Enchantment, Integer> enchantments;
 
-    @SerializedName(value = "commands_to_execute")
-    public String commandsToExecute;
-
-    @SerializedName(value = "give_result_item")
-    public boolean giveItem;
 
     public JsonItemStack(final ItemWrapper wrapper) {
         if (wrapper == null) return;
@@ -48,8 +44,6 @@ public class JsonItemStack {
         this.material = wrapper.getItemStack().getType().name();
         this.lore = wrapper.getLore();
         this.enchantments = wrapper.getItemStack().getEnchantments();
-        this.commandsToExecute = null;
-        this.giveItem = true;
         this.customItemsId = null;
         this.mmoItemId = null;
         this.mmoItemType = null;
@@ -75,10 +69,20 @@ public class JsonItemStack {
     }
 
     public final ItemStack getMmoItem() {
-        return MMOItems.plugin.getItem(Type.get(this.mmoItemType), this.mmoItemId);
+        if (!TraderVillagers.INSTANCE.isMmoItemsEnabled()) {
+            Logger.error("Attempting to use a MMO Item in a JsonItemStack, however MMOItems is not enabled! Returning null. . .");
+            return null;
+        } else return TraderVillagers.INSTANCE.getMmoItemsInstance().getItem(Type.get(this.mmoItemType), this.mmoItemId.toUpperCase());
     }
 
     public final boolean isCustomItem() {
         return this.customItemsId != null;
+    }
+
+    public final ItemStack getCustomItem() {
+        if (!TraderVillagers.INSTANCE.isCustomItemsEnabled()) {
+            Logger.error("Attempting to use CustomItem Item in a JsonItemStack, however CustomItems is not enabled! Returning null. . .");
+            return null;
+        } else return CustomItemsAPI.getCustomItem(this.customItemsId);
     }
 }
