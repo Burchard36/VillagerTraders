@@ -19,6 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.VillagerReplenishTradeEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.*;
@@ -36,7 +37,8 @@ public class TraderListener implements Listener {
         final ItemStack selectedItem = event.getCurrentItem();
         if (event.getSlot() != 2
                 && !event.isCancelled()
-                && selectedItem != null) return;
+                && selectedItem != null
+                && event.getClick() == ClickType.SHIFT_LEFT) return;
         final Player tradingPlayer = (Player) event.getWhoClicked();
         if (!(event.getClickedInventory() instanceof MerchantInventory)) {
             Logger.debug("Ignoring onTradeFinish because AbstractVillager's Inventory is not a MerchantInventory", TraderVillagers.INSTANCE);
