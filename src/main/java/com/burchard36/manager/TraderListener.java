@@ -2,31 +2,21 @@ package com.burchard36.manager;
 
 import com.burchard36.Logger;
 import com.burchard36.TraderVillagers;
-import com.burchard36.config.JsonItemStack;
 import com.burchard36.config.JsonTradeOption;
 import com.burchard36.config.PluginConfig;
 import com.burchard36.config.VillagerTraderJson;
 import com.burchard36.lib.MerchantHelper;
-import io.papermc.paper.event.player.PlayerTradeEvent;
-import net.citizensnpcs.api.CitizensAPI;
-import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.VillagerReplenishTradeEvent;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class TraderListener implements Listener {
 
@@ -38,25 +28,13 @@ public class TraderListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public final void onTradeFinish(final InventoryClickEvent event) {
+        if (!MerchantHelper.validateClickEvent(event)) return;
         final ItemStack selectedItem = event.getCurrentItem();
-        if (event.getSlot() != 2
-                && !event.isCancelled()
-                && selectedItem != null
-                && event.getClick() == ClickType.SHIFT_LEFT) return;
         final Player tradingPlayer = (Player) event.getWhoClicked();
-        if (!(event.getClickedInventory() instanceof MerchantInventory)) {
-            Logger.debug("Ignoring onTradeFinish because AbstractVillager's Inventory is not a MerchantInventory", TraderVillagers.INSTANCE);
-            return;
-        }
-
         final MerchantInventory villagerInventory = (MerchantInventory) event.getClickedInventory();
+        if (villagerInventory == null) throw new RuntimeException("Dude! Why is MerchantInventory null?? Did you change the Citizens2 NPC type? If not im sorry please contact a develoepr :( UwU We make a fucky wucky");
         final Villager villager = (Villager) villagerInventory.getHolder();
-        final NPC npc = CitizensAPI.getNPCRegistry().getNPC(villager);
-        if (npc == null) {
-            Logger.debug("Returning PlayerTradeEvent because NPC was null when checked", TraderVillagers.INSTANCE);
-            return;
-        }
-
+        if (villager == null) throw new RuntimeException("Villager was null? Why (Did you change the entity type of the Citizen2 NPC? onTradeFinish. Please contact a developer dude!! Im sorry!!");
         final MerchantRecipe currentTrade = villagerInventory.getSelectedRecipe();
         final VillagerTraderJson tradeOptions = this.config.getTraderJsonByEntity(villager);
         if (tradeOptions == null) {
@@ -72,10 +50,11 @@ public class TraderListener implements Listener {
         }
 
         if (tradeSettings.commandsToExecute != null) {
-            Logger.log("Commands werent null!");
+            Logger.debug("Commands were found for this trade, running commands. . .", TraderVillagers.INSTANCE);
             final ConsoleCommandSender console = Bukkit.getConsoleSender();
             tradeSettings.commandsToExecute.forEach((command) -> {
                 command = command.replace("%player%", tradingPlayer.getName());
+                Logger.debug("Executing command: &e" + command, TraderVillagers.INSTANCE);
                 Bukkit.dispatchCommand(console, command);
             });
         }
@@ -83,11 +62,23 @@ public class TraderListener implements Listener {
         if (currentTrade != null) {
             event.setCancelled(true);
             this.removeTradeItems(event, currentTrade);
+            if (selectedItem == null) throw new RuntimeException("Dude! What happened :c There was a check for this idk what happened, please contact me!!");
             if (tradeSettings.giveItem) tradingPlayer.getInventory().addItem(selectedItem);
         }
 
-        MerchantHelper.loadMerchantTrades(villagerInventory,
-                new ArrayList<>(villagerInventory.getMerchant().getRecipes())); // new array list so original instance isnt disturbed
+        MerchantHelper.testLoadMerchantTrades(villagerInventory); // new array list so original instance isnt disturbed
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (villagerInventory.getItem(2) == null) return;
+                final Villager entity = (Villager) villager.getWorld().getEntity(villager.getUniqueId());
+                assert entity != null; // Come on, it seriously won't disappear a tick later...
+                int index = villagerInventory.getSelectedRecipeIndex();
+                MerchantRecipe recipe = entity.getRecipe(index);
+                villagerInventory.setItem(2, recipe.getResult());
+                tradingPlayer.updateInventory();
+            }
+        }.runTaskLater(TraderVillagers.INSTANCE, 1);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -98,8 +89,7 @@ public class TraderListener implements Listener {
         }
 
         final MerchantInventory villagerInventory = (MerchantInventory) event.getInventory();
-        MerchantHelper.loadMerchantTrades(villagerInventory,
-                new ArrayList<>(villagerInventory.getMerchant().getRecipes())); // new array list so original instance isnt disturbed
+        MerchantHelper.testLoadMerchantTrades(villagerInventory); // new array list so original instance isnt disturbed
     }
 
     private void removeTradeItems(final InventoryClickEvent event,

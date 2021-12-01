@@ -45,17 +45,18 @@ public class VillagerTraderJson {
         option.maxUses = Integer.MAX_VALUE;
         this.tradeOptions.add(option);
 
-        cost1 = new JsonItemStack(new ItemWrapper(new ItemStack(Material.GOLD_NUGGET, 1)));
-        cost1.mmoItemType = "SWORD";
-        cost1.mmoItemId = "STARTER_SWORD";
-        cost2 = new JsonItemStack(new ItemWrapper(new ItemStack(Material.SPRUCE_WOOD, 1)));
-        cost2.customItemsId = "TradeTest";
-        result = new JsonItemStack(new ItemWrapper(new ItemStack(Material.GOLD_INGOT, 1)));
+        JsonTradeOption optionn = new JsonTradeOption();
+        JsonItemStack cost11 = new JsonItemStack(new ItemWrapper(new ItemStack(Material.GOLD_NUGGET, 1)));
+        cost11.mmoItemType = "SWORD";
+        cost11.mmoItemId = "STARTER_SWORD";
+        JsonItemStack cost22 = new JsonItemStack(new ItemWrapper(new ItemStack(Material.SPRUCE_WOOD, 1)));
+        cost22.customItemsId = "TradeTest";
+        JsonItemStack result2 = new JsonItemStack(new ItemWrapper(new ItemStack(Material.GOLD_INGOT, 1)));
 
-        option.cost1 = cost1;
-        option.cost2 = cost2;
-        option.result = result;
-        this.tradeOptions.add(option);
+        optionn.cost1 = cost11;
+        optionn.cost2 = cost22;
+        optionn.result = result2;
+        this.tradeOptions.add(optionn);
     }
 
     public final Villager.Profession getNpcProfession() {

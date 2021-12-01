@@ -41,11 +41,18 @@ public class JsonTradeOption {
         this.result.mmoItemId = "STARTER_SWORD";
         this.cost1.customItemsId = "TradeTest";
 
-        this.maxUses = null;
+        this.maxUses = -1;
         this.giveItem = true;
         this.commandsToExecute = new ArrayList<>();
         this.commandsToExecute.add("say hi %player%");
     }
 
-    public JsonTradeOption() {}
+    public JsonTradeOption() {
+        this.maxUses = -1;
+    }
+
+    public int getMaxUses() {
+        if (maxUses == -1) return Integer.MAX_VALUE;
+        return maxUses;
+    }
 }

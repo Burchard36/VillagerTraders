@@ -69,10 +69,7 @@ public class JsonItemStack {
     }
 
     public final ItemStack getMmoItem() {
-        if (!TraderVillagers.INSTANCE.isMmoItemsEnabled()) {
-            Logger.error("Attempting to use a MMO Item in a JsonItemStack, however MMOItems is not enabled! Returning null. . .");
-            return null;
-        } else return TraderVillagers.INSTANCE.getMmoItemsInstance().getItem(Type.get(this.mmoItemType), this.mmoItemId.toUpperCase());
+       return TraderVillagers.INSTANCE.getMmoItemsInstance().getItem(Type.get(this.mmoItemType), this.mmoItemId.toUpperCase());
     }
 
     public final boolean isCustomItem() {
@@ -80,9 +77,6 @@ public class JsonItemStack {
     }
 
     public final ItemStack getCustomItem() {
-        if (!TraderVillagers.INSTANCE.isCustomItemsEnabled()) {
-            Logger.error("Attempting to use CustomItem Item in a JsonItemStack, however CustomItems is not enabled! Returning null. . .");
-            return null;
-        } else return CustomItemsAPI.getCustomItem(this.customItemsId);
+        return CustomItemsAPI.getCustomItem(this.customItemsId);
     }
 }
