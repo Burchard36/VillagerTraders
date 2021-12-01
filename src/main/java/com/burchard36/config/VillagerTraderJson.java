@@ -3,10 +3,12 @@ package com.burchard36.config;
 import com.burchard36.inventory.ItemWrapper;
 import com.google.gson.annotations.SerializedName;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class VillagerTraderJson {
@@ -31,6 +33,8 @@ public class VillagerTraderJson {
         JsonItemStack cost2 = new JsonItemStack(new ItemWrapper(new ItemStack(Material.SPRUCE_WOOD, 1)));
         JsonItemStack result = new JsonItemStack(new ItemWrapper(new ItemStack(Material.GOLD_NUGGET, 1)));
         cost1.customItemsId = "TradeTest";
+        cost1.enchantments = new HashMap<>();
+        cost1.enchantments.put("UNBREAKING", 5);
         cost2.customItemsId = "TradeTest";
         result.mmoItemType = "SWORD";
         result.mmoItemId = "STARTER_SWORD";
