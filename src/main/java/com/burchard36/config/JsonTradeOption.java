@@ -1,13 +1,11 @@
 package com.burchard36.config;
 
 import com.burchard36.inventory.ItemWrapper;
-import com.google.gson.JsonArray;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class JsonTradeOption {
@@ -48,4 +46,6 @@ public class JsonTradeOption {
         this.commandsToExecute = new ArrayList<>();
         this.commandsToExecute.add("say hi %player%");
     }
+
+    public JsonTradeOption() {}
 }

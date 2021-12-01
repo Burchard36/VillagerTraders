@@ -26,10 +26,35 @@ public class VillagerTraderJson {
         this.npcId = npcId;
         this.villagerType = villagerType.name();
         this.tradeOptions = tradeOptions;
-        final JsonTradeOption option = new JsonTradeOption(
-                new ItemWrapper(new ItemStack(Material.SPRUCE_LOG, 4)),
-                new ItemWrapper(new ItemStack(Material.AIR)),
-                new ItemWrapper(new ItemStack(Material.GOLD_NUGGET, 8)));
+        JsonTradeOption option = new JsonTradeOption();
+        JsonItemStack cost1 = new JsonItemStack(new ItemWrapper(new ItemStack(Material.SPRUCE_WOOD, 1)));
+        JsonItemStack cost2 = new JsonItemStack(new ItemWrapper(new ItemStack(Material.SPRUCE_WOOD, 1)));
+        JsonItemStack result = new JsonItemStack(new ItemWrapper(new ItemStack(Material.GOLD_NUGGET, 1)));
+        cost1.customItemsId = "TradeTest";
+        cost2.customItemsId = "TradeTest";
+        result.mmoItemType = "SWORD";
+        result.mmoItemId = "STARTER_SWORD";
+
+        option.cost1 = cost1;
+        option.cost2 = cost2;
+        option.result = result;
+        option.giveItem = false;
+        List<String> commands = new ArrayList<>();
+        commands.add("say %player% hello");
+        option.commandsToExecute = commands;
+        option.maxUses = Integer.MAX_VALUE;
+        this.tradeOptions.add(option);
+
+        cost1 = new JsonItemStack(new ItemWrapper(new ItemStack(Material.GOLD_NUGGET, 1)));
+        cost1.mmoItemType = "SWORD";
+        cost1.mmoItemId = "STARTER_SWORD";
+        cost2 = new JsonItemStack(new ItemWrapper(new ItemStack(Material.SPRUCE_WOOD, 1)));
+        cost2.customItemsId = "TradeTest";
+        result = new JsonItemStack(new ItemWrapper(new ItemStack(Material.GOLD_INGOT, 1)));
+
+        option.cost1 = cost1;
+        option.cost2 = cost2;
+        option.result = result;
         this.tradeOptions.add(option);
     }
 

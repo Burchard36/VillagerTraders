@@ -6,6 +6,7 @@ import com.burchard36.config.JsonItemStack;
 import com.burchard36.config.JsonTradeOption;
 import com.burchard36.config.PluginConfig;
 import com.burchard36.config.VillagerTraderJson;
+import com.burchard36.lib.MerchantHelper;
 import io.papermc.paper.event.player.PlayerTradeEvent;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
@@ -23,6 +24,9 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TraderListener implements Listener {
 
@@ -81,6 +85,9 @@ public class TraderListener implements Listener {
             this.removeTradeItems(event, currentTrade);
             if (tradeSettings.giveItem) tradingPlayer.getInventory().addItem(selectedItem);
         }
+
+        MerchantHelper.loadMerchantTrades(villagerInventory,
+                new ArrayList<>(villagerInventory.getMerchant().getRecipes())); // new array list so original instance isnt disturbed
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -91,91 +98,13 @@ public class TraderListener implements Listener {
         }
 
         final MerchantInventory villagerInventory = (MerchantInventory) event.getInventory();
-        int loopCount = 0;
-        for (final MerchantRecipe recipe : villagerInventory.getMerchant().getRecipes()) {
-
-            final VillagerTraderJson traderJsonConfig = this.config.getTraderJsonByEntity((Villager)villagerInventory.getHolder());
-            if (traderJsonConfig == null) {
-                Logger.debug("Returning onTradeClick because Trader config was null for villager NPC", TraderVillagers.INSTANCE);
-                return;
-            }
-
-            final JsonTradeOption traderOptions = traderJsonConfig.tradeOptions.get(loopCount);
-            final JsonItemStack firstIngredientConfig = traderOptions.cost1;
-            final JsonItemStack secondIngredientConfig = traderOptions.cost2;
-            final JsonItemStack resultConfig = traderOptions.result;
-
-            if (firstIngredientConfig == null) {
-                Logger.error("Config for first JsonItemStack recipe was null, please double check your VillagerTrade configs!");
-                return;
-            }
-
-            final ItemStack firstIngredient = firstIngredientConfig.getItemStack();
-            if (firstIngredient == null) {
-                Logger.error("ItemStack for First Ingredient was null! Please make sure this ItemStack recipe is configured correctly!");
-                return;
-            }
-
-            MerchantRecipe newRecipe = null;
-            ItemStack result = null;
-            if (resultConfig.isMmoItem()) {
-                result = resultConfig.getMmoItem();
-                if (result == null) Logger.error("MMOItem with ID: " + resultConfig.mmoItemId + " and type: " + resultConfig.mmoItemType + " for VillagerTrades Result");
-            } else if (resultConfig.isCustomItem()) {
-                result = resultConfig.getCustomItem();
-                if (result == null) Logger.error("CustomItem with ID: " + resultConfig.customItemsId + " Could not be found for VillagerTrades Result");
-            } else result = resultConfig.getItemStack();
-
-            if (result == null) {
-                Logger.error("ItemStack for VillagerTrades Result was null when reached! Did you just ignore the errors up above or did you forget to specify a material in the configuration?");
-                return;
-            }
-
-            newRecipe = new MerchantRecipe(result, Integer.MAX_VALUE);
-            this.handleTradeOptions(newRecipe, traderOptions);
-            this.handleIngredient(newRecipe, firstIngredientConfig, firstIngredient);
-            if (secondIngredientConfig != null) this.handleIngredient(newRecipe, secondIngredientConfig, secondIngredientConfig.getItemStack());
-
-            villagerInventory.getMerchant().setRecipe(loopCount, newRecipe);
-            loopCount++;
-        }
+        MerchantHelper.loadMerchantTrades(villagerInventory,
+                new ArrayList<>(villagerInventory.getMerchant().getRecipes())); // new array list so original instance isnt disturbed
     }
 
     private void removeTradeItems(final InventoryClickEvent event,
                                   final MerchantRecipe currentTrade) {
         event.getInventory().removeItem(currentTrade.getIngredients().get(0));
         if (currentTrade.getIngredients().get(1) != null) event.getInventory().removeItem(currentTrade.getIngredients().get(1));
-    }
-
-    private void handleTradeOptions(final MerchantRecipe recipe,
-                                    final JsonTradeOption tradeOptions) {
-        if (tradeOptions.maxUses != null) {
-            recipe.setMaxUses(tradeOptions.maxUses);
-
-            recipe.setUses(recipe.getMaxUses());
-        }
-    }
-
-    private void handleIngredient(final MerchantRecipe recipe,
-                                  final JsonItemStack stackConfig,
-                                  final ItemStack ingredientItemStack) {
-        if (recipe == null) return;
-            if (stackConfig.isMmoItem()) {
-                final ItemStack mmoItem = stackConfig.getMmoItem();
-                if (mmoItem == null) {
-                    Logger.error("MMOItem with ID: " + stackConfig.mmoItemId + " and type: " + stackConfig.mmoItemType + " for VillagerTrades Ingredient");
-                    return;
-                }
-                recipe.addIngredient(mmoItem);
-            } else if (stackConfig.isCustomItem()) {
-                final ItemStack customItem = stackConfig.getCustomItem();
-                if (customItem == null) {
-                    Logger.error("CustomItem with ID: " + stackConfig.customItemsId + " Could not be found for VillagerTrades Result");
-                    return;
-                }
-                recipe.addIngredient(customItem);
-            } else {
-                recipe.addIngredient(ingredientItemStack);
-            }
     }
 }
