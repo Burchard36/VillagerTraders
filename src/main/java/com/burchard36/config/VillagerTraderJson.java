@@ -3,7 +3,6 @@ package com.burchard36.config;
 import com.burchard36.inventory.ItemWrapper;
 import com.google.gson.annotations.SerializedName;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 

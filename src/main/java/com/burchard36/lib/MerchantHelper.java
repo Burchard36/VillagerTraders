@@ -8,7 +8,6 @@ import com.burchard36.config.VillagerTraderJson;
 import com.jojodmo.customitems.api.CustomItemsAPI;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;

@@ -5,7 +5,6 @@ import com.burchard36.config.PluginConfig;
 import com.burchard36.json.PluginDataMap;
 import com.burchard36.json.PluginJsonWriter;
 import com.burchard36.manager.TraderManager;
-import com.jojodmo.customitems.api.CustomItemsAPI;
 import net.Indyuce.mmoitems.MMOItems;
 import net.citizensnpcs.api.event.NPCSpawnEvent;
 import net.citizensnpcs.api.npc.NPC;
