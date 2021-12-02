@@ -11,10 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Merchant;
-import org.bukkit.inventory.MerchantInventory;
-import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.inventory.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +23,7 @@ public class MerchantHelper {
         final Merchant merchant = merchantInventory.getMerchant();
         merchant.setRecipes(new ArrayList<>());
         final Villager villager = (Villager) merchantInventory.getHolder();
+        if (villager == null) return;
         final VillagerTraderJson traderJson = getTradeJson(villager);
         final List<JsonTradeOption> traderOptions = traderJson.tradeOptions;
 
@@ -54,47 +52,69 @@ public class MerchantHelper {
         }
     }
 
+    public static boolean isValidTraderVillager(final Inventory inventory) {
+        return (isCitizensNpc(inventory.getHolder())) && (isValidVillagerNpc(inventory));
+    }
+
+    public static boolean isCitizensNpc(final InventoryHolder inventoryHolder) {
+        if (inventoryHolder == null) return false;
+        return inventoryHolder instanceof Villager && CitizensAPI.getNPCRegistry().isNPC((Villager) inventoryHolder);
+    }
+
+    public static boolean isValidVillagerNpc(final Inventory inventory) {
+        if (inventory == null) return false;
+        if (!(inventory instanceof MerchantInventory)) {
+            Logger.debug("isValidVillagerNpc returning false because the inventory provided is not a MerchantInventory, maybe a custom plugin made this Inventory?", TraderVillagers.INSTANCE);
+            return false;
+        }
+
+
+        if (!(inventory.getHolder() instanceof Villager)) {
+            Logger.debug("isValidVillagerNpc returning false because that's not a villager! (Or the inventory opened was created by a different custom plugin)", TraderVillagers.INSTANCE);
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Checks if an InventoryClickEvent may pass to handle the JsonTradeOptions
      * @param event InventoryClickEvent to check
      * @return true if event may pass, false if not.
      */
     public static boolean validateClickEvent(final InventoryClickEvent event) {
-        final boolean eventIsNotCancelled = !event.isCancelled();
-        final boolean currentItemNotEmpty = event.getCurrentItem() != null;
-        final boolean isLeftClick = event.getClick() == ClickType.LEFT;
-        final boolean isCorrectClickedSlot = event.getSlot() == 2 && event.getClickedInventory() instanceof MerchantInventory;
-        final boolean resultSlotNotEmpty = event.getClickedInventory() != null && event.getClickedInventory().getItem(2) != null;
-        final boolean isCitizenNpc = event.getClickedInventory().getHolder() instanceof Villager && CitizensAPI.getNPCRegistry().isNPC((Villager) event.getInventory().getHolder());
-
-        if (!eventIsNotCancelled) {
+        if (event.isCancelled()) {
             Logger.debug("Cancelling onTradeFinish because event was finished", TraderVillagers.INSTANCE);
             return false;
         }
 
-        if (!currentItemNotEmpty) {
+        if (event.getCurrentItem() == null) {
             Logger.debug("Canceling onTradeFinish because current item was empty", TraderVillagers.INSTANCE);
             return false;
         }
 
-        if (!isCorrectClickedSlot) {
+        if (event.getClick() != ClickType.LEFT) {
             Logger.debug("Cancelling onTradeFinish because the slot needed to be clicked was incorrect", TraderVillagers.INSTANCE);
             return false;
         }
 
-        if (!isLeftClick) {
-            Logger.debug("Canceling onTradeFinish because ClickType was not a left click!", TraderVillagers.INSTANCE);
+        if (event.getClickedInventory() == null) {
+            Logger.debug("Canceling onTradeFinish because the clicked inventory was null!", TraderVillagers.INSTANCE);
             return false;
         }
 
-        // TODO: Look out for this boolean, it may produce a NPE one day...
-        if (!resultSlotNotEmpty) {
-            Logger.debug("Cancelling onTradeFinish because result slot was empty", TraderVillagers.INSTANCE);
-            return false;
-        }
-
-        if (!isCitizenNpc) {
+        if (!isCitizensNpc(event.getClickedInventory().getHolder())) {
             Logger.debug("Cancelling onTradeFinish because the InventoryHolder is not a CitizensNPC!! (Consider contacting a developer)", TraderVillagers.INSTANCE);
+            return false;
+        }
+
+        if (event.getSlot() != 2 && !isValidVillagerNpc(event.getClickedInventory())) {
+            Logger.debug("Cancelling onTradeFinish because this was a invalid VillagerNPC! Was it made by a plugin?", TraderVillagers.INSTANCE);
+            return false;
+        }
+
+        if (event.getClickedInventory().getItem(2) == null) {
+            Logger.debug("Canceling onTradeFinish because result slot was empty!", TraderVillagers.INSTANCE);
             return false;
         }
 

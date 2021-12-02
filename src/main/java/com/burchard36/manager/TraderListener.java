@@ -83,9 +83,8 @@ public class TraderListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public final void onInvOpen(final InventoryOpenEvent event) {
-        if (!(event.getInventory() instanceof MerchantInventory)) {
-            Logger.debug("Returning onInvOpen because Inventory is not MerchantInventory", TraderVillagers.INSTANCE);
-            return;
+        if (!MerchantHelper.isValidTraderVillager(event.getInventory())) {
+            Logger.debug("Returning onInvOpen because MerchantInventory does not belong to a Citizens2 NPC!", TraderVillagers.INSTANCE);
         }
 
         final MerchantInventory villagerInventory = (MerchantInventory) event.getInventory();
