@@ -134,7 +134,7 @@ public class MerchantHelper {
          * MMOItems and a CustomItems field on one items
          */
         if (jsonStack.isCustomItem() && !jsonStack.isMmoItem()) {
-            stack = CustomItemsAPI.getCustomItem(jsonStack.customItemsId);
+            stack = jsonStack.getCustomItem();
             if (stack == null) throw new RuntimeException("CustomItems ingredient for VillagerTrade does not exist! Please review your configurations!");
         } else if (jsonStack.isMmoItem() && !jsonStack.isCustomItem()) {
             stack = jsonStack.getMmoItem();

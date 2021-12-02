@@ -4,6 +4,7 @@ import com.burchard36.Logger;
 import com.burchard36.TraderVillagers;
 import com.burchard36.inventory.ItemWrapper;
 import com.google.gson.annotations.SerializedName;
+import com.jojodmo.customitems.api.CustomItemsAPI;
 import net.Indyuce.mmoitems.api.Type;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -21,6 +22,9 @@ public class JsonItemStack {
 
     @SerializedName(value = "material")
     public String material;
+
+    @SerializedName(value = "amount")
+    public int amount;
 
     @SerializedName(value = "custom_items_id")
     public String customItemsId;
@@ -51,6 +55,7 @@ public class JsonItemStack {
         this.customItemsId = null;
         this.mmoItemId = null;
         this.mmoItemType = null;
+        this.amount = 1;
     }
 
     public final ItemStack getItemStack() {
@@ -59,7 +64,7 @@ public class JsonItemStack {
             Logger.error("Material was null when check: " + this.material);
             return null;
         }
-        final ItemStack stack = new ItemStack(stackMaterial);
+        final ItemStack stack = new ItemStack(stackMaterial, this.amount);
         final ItemWrapper wrapper = new ItemWrapper(stack);
         if (this.name != null) wrapper.setDisplayName(this.name);
         if (this.lore != null) wrapper.setItemLore(this.lore);
@@ -78,10 +83,18 @@ public class JsonItemStack {
     }
 
     public final ItemStack getMmoItem() {
-       return TraderVillagers.INSTANCE.getMmoItemsInstance().getItem(Type.get(this.mmoItemType), this.mmoItemId.toUpperCase());
+       final ItemStack stack =  TraderVillagers.INSTANCE.getMmoItemsInstance().getItem(Type.get(this.mmoItemType), this.mmoItemId.toUpperCase());
+        if (stack != null) stack.setAmount(this.amount);
+        return stack;
     }
 
     public final boolean isCustomItem() {
         return this.customItemsId != null;
+    }
+
+    public final ItemStack getCustomItem() {
+        final ItemStack stack = CustomItemsAPI.getCustomItem(this.customItemsId);
+        if (stack != null) stack.setAmount(this.amount);
+        return stack;
     }
 }
