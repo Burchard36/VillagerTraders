@@ -33,7 +33,7 @@ public class TraderManager {
 
     public final void loadNpc(final int npcId) {
         for (final VillagerTraderJson traderJson : this.plugin.getPluginConfig().villagerTraders) {
-            if (traderJson.npcId != npcId) return;
+            if (traderJson.npcId != npcId) continue;
             Logger.log("Loading custom recipes for NPC with ID: " + traderJson.npcId);
             NPC traderNpc = CitizensAPI.getNPCRegistry().getById(traderJson.npcId);
             if (traderNpc == null) {

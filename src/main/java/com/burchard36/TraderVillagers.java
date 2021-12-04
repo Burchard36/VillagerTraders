@@ -26,6 +26,7 @@ public final class TraderVillagers extends JavaPlugin implements Listener, Api {
     public void onNpcSpawn(NPCSpawnEvent event) {
         INSTANCE = this;
         final NPC npc = event.getNPC();
+        Logger.debug("Attempting to loading NPC with ID: " + npc.getId(), this);
         this.traderManager.loadNpc(npc.getId());
     }
 

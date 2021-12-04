@@ -94,6 +94,8 @@ public class TraderListener implements Listener {
     private void removeTradeItems(final InventoryClickEvent event,
                                   final MerchantRecipe currentTrade) {
         event.getInventory().removeItem(currentTrade.getIngredients().get(0));
-        if (currentTrade.getIngredients().size() == 2) event.getInventory().removeItem(currentTrade.getIngredients().get(1));
+        if (currentTrade.getIngredients().size() == 2) {
+            event.getInventory().removeItem(currentTrade.getIngredients().get(1));
+        }
     }
 }
